@@ -15,3 +15,7 @@ Arduino project for automatic stairs LED lightning. It's activated by a human mo
 * 1x DIY MOSFET LED driver (16x BS170 MOSFET transistor)
 * 1x PCA9685 16-channel 12-bit PWM driver I2C module
 * 1x Arduino Nano V3.0 ATmega328P CH340G 5V 16MHz micro-controller board
+
+# Photo
+![Main modules together](https://github.com/dukeczech/LED-stairs/blob/master/20171013_171300.jpg)
+![LED stairs](https://github.com/dukeczech/LED-stairs/blob/master/20171013_171417.jpg)
