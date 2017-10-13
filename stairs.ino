@@ -13,7 +13,7 @@
 //#define DEBUG
 
 #define NIGHT_LIGHT_ENABLED
-#define NIGHT_LIGHT_INTENSITY 50
+#define NIGHT_LIGHT_INTENSITY 10
 
 #define SLOW_START_ENABLED
 #define SLOW_START_DELAY 800
@@ -55,7 +55,7 @@ void setup() {
   
   pwm.resetDevices();
   pwm.init(0, PCA9685_MODE_OUTPUT_ONACK | PCA9685_MODE_OUTPUT_TPOLE);
-  pwm.setPWMFrequency(200);
+  pwm.setPWMFrequency(80);
 
 #ifdef DEBUG
   pwm.printModuleInfo();
