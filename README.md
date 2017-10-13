@@ -9,7 +9,7 @@ Arduino project for automatic stairs LED lightning. It's activated by a human mo
 * PCA9685 16-Channel PWM Driver Module Library (https://github.com/NachtRaveVL/PCA9685-Arduino)
 * TimedAction Library (https://playground.arduino.cc/Code/TimedAction)
 
-# Parts
+# Main modules
 * 16x 60cm 12V 3528 LED strip (warm white, non waterproof)
 * 2x 12V Infrared PIR motion automatic sensor switch
 * 1x DIY MOSFET LED driver (16x BS170 MOSFET transistor)
@@ -18,4 +18,5 @@ Arduino project for automatic stairs LED lightning. It's activated by a human mo
 
 # Photo
 ![Main modules together](https://github.com/dukeczech/LED-stairs/blob/master/20171013_171300.jpg)
+
 ![LED stairs](https://github.com/dukeczech/LED-stairs/blob/master/20171013_171417.jpg)
