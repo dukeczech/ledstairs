@@ -1,10 +1,15 @@
 #include <PCA9685.h>
 #include <TimedAction.h>
 
-#define LEDPIN 10
+#define LED_POWER 8
+#define LED_SENSOR_DOWN 9
+#define LED_SENSOR_UP 10
+#define LED_ERROR 11
 
 #define SENSOR_DOWN 2 // INT0
 #define SENSOR_UP 3 // INT1
+
+#define MANUAL_SWITCH 4
 
 #define ACTIVE_INTERVAL 18000
 #define SCAN_SPEED 1000
@@ -31,6 +36,10 @@ enum eState {
 
 void setup();
 void loop();
+void fullOn();
+void fullOff();
+void enableLED(int led);
+void disableLED(int led);
 void fadeIn(eDirection dir);
 void fadeOut(eDirection dir);
 static void sensorDown();
@@ -40,15 +49,22 @@ static void checkState();
 TimedAction t1 = TimedAction(ACTIVE_INTERVAL, checkState);
 volatile eState state = STATE_INACTIVE;
 volatile bool on = false;
+volatile bool manual = false;
 PCA9685 pwm;
 
 void setup() {
 #ifdef DEBUG
   Serial.begin(115200);
 #endif
+
+  pinMode(LED_POWER, OUTPUT);
+  pinMode(LED_SENSOR_DOWN, OUTPUT);
+  pinMode(LED_SENSOR_UP, OUTPUT);
+  pinMode(LED_ERROR, OUTPUT);
   
   pinMode(SENSOR_DOWN, INPUT);
   pinMode(SENSOR_UP, INPUT);
+  pinMode(MANUAL_SWITCH, INPUT_PULLUP);
 
   Wire.begin();
   Wire.setClock(400000);
@@ -61,55 +77,77 @@ void setup() {
   pwm.printModuleInfo();
 #endif
 
-  pwm.setAllChannelsPWM(4096);
+  enableLED(LED_POWER);
+  enableLED(LED_SENSOR_DOWN);
+  enableLED(LED_SENSOR_UP);
+  enableLED(LED_ERROR);
+  
+  fullOn();
   delay(250);
-  pwm.setAllChannelsPWM(0);
+  fullOff();
   
   attachInterrupt(digitalPinToInterrupt(SENSOR_DOWN), sensorDown, RISING);
   attachInterrupt(digitalPinToInterrupt(SENSOR_UP), sensorUp, RISING);
-
-#ifdef NIGHT_LIGHT_ENABLED
-  pwm.setChannelPWM(0, NIGHT_LIGHT_INTENSITY);
-  pwm.setChannelPWM(15, NIGHT_LIGHT_INTENSITY);
-#endif
 
 #ifdef DEBUG
   Serial.println("Start...");
 #endif
 
+  disableLED(LED_SENSOR_DOWN);
+  disableLED(LED_SENSOR_UP);
+  disableLED(LED_ERROR);
+  
   interrupts();
 }
 
 void loop() {
 
-  if(!on) {
-    switch(state) {
-      case STATE_INACTIVE:
-        break;
-      case STATE_DIRECTION_UP:
+  const int sw = digitalRead(MANUAL_SWITCH);
+  if(sw == LOW) {
 #ifdef DEBUG
-        Serial.println("Sensor DOWN is activated");
+        Serial.println("Manual switch is activated");
 #endif
-        if(!on) {
-          fadeIn(DIRECTION_UP);
-          on = true;
-        }
-        break;
-      case STATE_DIRECTION_DOWN:
-#ifdef DEBUG
-        Serial.println("Sensor UP is activated");
-#endif
-        if(!on) {
-          fadeIn(DIRECTION_DOWN);
-          on = true;
-        }
-        break;
-      default:
-        break;
+    enableLED(LED_SENSOR_DOWN);
+    enableLED(LED_SENSOR_UP);
+    fullOn();
+    manual = true;
+  } else {
+    if(manual) {
+      disableLED(LED_SENSOR_DOWN);
+      disableLED(LED_SENSOR_UP);
+      fullOff();
+      manual = false;  
     }
+    
+    if(!on) {
+      switch(state) {
+        case STATE_INACTIVE:
+          break;
+        case STATE_DIRECTION_UP:
+#ifdef DEBUG
+          Serial.println("Sensor DOWN is activated");
+#endif
+          if(!on) {
+            fadeIn(DIRECTION_UP);
+            on = true;
+          }
+          break;
+        case STATE_DIRECTION_DOWN:
+  #ifdef DEBUG
+          Serial.println("Sensor UP is activated");
+  #endif
+          if(!on) {
+            fadeIn(DIRECTION_DOWN);
+            on = true;
+          }
+          break;
+        default:
+          break;
+      }
+    }
+  
+    if(on) t1.check();
   }
-
-  if(on) t1.check();
 }
 
 void fadeIn(eDirection dir) {
@@ -134,6 +172,26 @@ void fadeIn(eDirection dir) {
 #endif
     }
   }
+}
+
+void fullOn() {
+  pwm.setAllChannelsPWM(4096);
+}
+
+void fullOff() {
+  pwm.setAllChannelsPWM(0);
+#ifdef NIGHT_LIGHT_ENABLED
+  pwm.setChannelPWM(0, NIGHT_LIGHT_INTENSITY);
+  pwm.setChannelPWM(15, NIGHT_LIGHT_INTENSITY);
+#endif
+}
+
+void enableLED(int led) {
+  digitalWrite(led, LOW);
+}
+
+void disableLED(int led) {
+  digitalWrite(led, HIGH);
 }
 
 void fadeOut(eDirection dir) {
@@ -170,6 +228,7 @@ static void sensorDown() {
   } else {
     switch(state) {
       case STATE_INACTIVE:
+        enableLED(LED_SENSOR_DOWN);
         state = STATE_DIRECTION_UP;
         break;
       case STATE_DIRECTION_UP:
@@ -192,6 +251,7 @@ static void sensorUp() {
   } else {
     switch(state) {
       case STATE_INACTIVE:
+        enableLED(LED_SENSOR_UP);
         state = STATE_DIRECTION_DOWN;
         break;
       case STATE_DIRECTION_UP:
@@ -214,6 +274,7 @@ static void checkState() {
 #ifdef DEBUG
       Serial.println("Disable UP direction");
 #endif
+      disableLED(LED_SENSOR_DOWN);
       fadeOut(DIRECTION_UP);
       state = STATE_INACTIVE;
       break;
@@ -221,6 +282,7 @@ static void checkState() {
 #ifdef DEBUG
       Serial.println("Disable DOWN direction");
 #endif
+      disableLED(LED_SENSOR_UP);
       fadeOut(DIRECTION_DOWN);
       state = STATE_INACTIVE;
       break;
