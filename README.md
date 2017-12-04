@@ -20,3 +20,7 @@ Arduino project for automatic stairs LED lightning. It's activated by a human mo
 ![Main modules together](https://github.com/dukeczech/LED-stairs/blob/master/20171013_171300.jpg)
 
 ![LED stairs](https://github.com/dukeczech/LED-stairs/blob/master/20171013_171417.jpg)
+
+![Indoor box opened](https://github.com/dukeczech/LED-stairs/blob/master/24650949_10204163787930488_1215584388_o.jpg)
+
+![Indoor box closed](https://github.com/dukeczech/LED-stairs/blob/master/24819211_10204163787890487_510508127_o.jpg)
