@@ -16,6 +16,19 @@ Arduino project for automatic stairs LED lightning. It's activated by a human mo
 * 1x PCA9685 16-channel 12-bit PWM driver I2C module
 * 1x Arduino Nano V3.0 ATmega328P CH340G 5V 16MHz micro-controller board
 
+
+# Remote commands
+There are a couple of remote commands sent via serial line to set the controller. Just connect the controller with USB port and press Enter into a serial console.
+Available commands:
+```
+setInterval(x); - set delay interval in seconds
+setLED(x); - set period for blinking LED in seconds
+setDefaults(); - set all the parametres to default values
+sensorUp(); - activate the UP sensor
+sensorDown(); - activate the DOWN sensor
+reset(); - reset the controller
+```
+
 # Photo
 ![Main modules together](https://github.com/dukeczech/LED-stairs/blob/master/20171013_171300.jpg)
 
